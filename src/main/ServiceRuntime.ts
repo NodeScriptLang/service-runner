@@ -6,7 +6,7 @@ import { dep } from 'mesh-ioc';
 
 export class ServiceRuntime {
 
-    @config() private ENCRYPTED_VARIABLES!: string;
+    @config({ default: '' }) private ENCRYPTED_VARIABLES!: string;
     @config() private VARIABLES_ENCRYPTION_KEY!: string;
 
     @dep() private logger!: Logger;
@@ -32,18 +32,14 @@ export class ServiceRuntime {
     }
 
     private async initVariables() {
-        this.logger.info(`Initializing varibles`);
         try {
-            const key = await subtle.importKey(
-                'raw',
-                Buffer.from(this.VARIABLES_ENCRYPTION_KEY, 'base64'),
-                {
-                    name: 'AES-GCM',
-                    length: 256,
-                },
-                false,
-                ['encrypt', 'decrypt']
-            );
+            const encryptedVariables = this.ENCRYPTED_VARIABLES;
+            if (!encryptedVariables) {
+                this.logger.info('Skipping variables initialization because ENCRYPTED_VARIABLES is empty');
+                return;
+            }
+            this.logger.info(`Initializing varibles`);
+            const key = await this.getEncryptionKey();
             const variablesJson = await this.decrypt(this.ENCRYPTED_VARIABLES, key);
             this.variables = JSON.parse(variablesJson);
             this.logger.info(`Initialized ${Object.keys(this.variables).length} variables`);
@@ -67,6 +63,19 @@ export class ServiceRuntime {
             length: 256,
         }, key, encryptedBuffer);
         return Buffer.from(decryptedBuffer).toString('utf-8');
+    }
+
+    private async getEncryptionKey() {
+        return await subtle.importKey(
+            'raw',
+            Buffer.from(this.VARIABLES_ENCRYPTION_KEY, 'base64'),
+            {
+                name: 'AES-GCM',
+                length: 256,
+            },
+            false,
+            ['encrypt', 'decrypt']
+        );
     }
 
 }
