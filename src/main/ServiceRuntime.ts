@@ -1,4 +1,3 @@
-import { ModuleCompute } from '@nodescript/core/types';
 import { Logger } from '@nodescript/logger';
 import { subtle, webcrypto } from 'crypto';
 import WebSocket from 'isomorphic-ws';
@@ -7,18 +6,15 @@ import { dep } from 'mesh-ioc';
 
 export class ServiceRuntime {
 
-    @config() private NODESCRIPT_MODULE_URL!: string;
     @config() private ENCRYPTED_VARIABLES!: string;
     @config() private VARIABLES_ENCRYPTION_KEY!: string;
 
     @dep() private logger!: Logger;
 
-    compute: ModuleCompute<any, any> = () => {};
     variables: Record<string, string> = {};
 
     async start() {
         this.initPolyfills();
-        await this.initModule();
         await this.initVariables();
     }
 
@@ -33,12 +29,6 @@ export class ServiceRuntime {
             global.WebSocket = WebSocket;
         }
         this.logger.info(`Installed WebSocket polyfill`);
-    }
-
-    private async initModule() {
-        this.logger.info(`Importing service module from ${this.NODESCRIPT_MODULE_URL}`);
-        const { compute } = await import(this.NODESCRIPT_MODULE_URL);
-        this.compute = compute;
     }
 
     private async initVariables() {
@@ -56,6 +46,7 @@ export class ServiceRuntime {
             );
             const variablesJson = await this.decrypt(this.ENCRYPTED_VARIABLES, key);
             this.variables = JSON.parse(variablesJson);
+            this.logger.info(`Initialized ${Object.keys(this.variables).length} variables`);
         } catch (error) {
             this.logger.error(`Could not initialize variables`, { error });
             throw error;

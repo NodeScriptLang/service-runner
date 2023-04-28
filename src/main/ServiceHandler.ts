@@ -1,11 +1,14 @@
 import { GraphEvalContext } from '@nodescript/core/runtime';
 import { HttpContext, HttpHandler } from '@nodescript/http-server';
 import { RequestMethod, RequestSpec, ResponseSpecSchema } from '@nodescript/service-compiler';
+import { config } from 'mesh-config';
 import { dep } from 'mesh-ioc';
 
 import { ServiceRuntime } from './ServiceRuntime.js';
 
 export class ServiceHandler implements HttpHandler {
+
+    @config() private NODESCRIPT_MODULE_URL!: string;
 
     @dep() private runtime!: ServiceRuntime;
 
@@ -13,7 +16,8 @@ export class ServiceHandler implements HttpHandler {
         const ec = new GraphEvalContext();
         try {
             const $request = await this.createRequestObject(ctx);
-            const { $response } = await this.runtime.compute({
+            const { compute } = await import(this.NODESCRIPT_MODULE_URL);
+            const { $response } = await compute({
                 $request,
                 $variables: this.runtime.variables,
             }, ec);
