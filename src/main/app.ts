@@ -6,10 +6,12 @@ import { dep, Mesh } from 'mesh-ioc';
 
 import { AppHttpHandler } from './AppHttpHandler.js';
 import { ServiceHandler } from './ServiceHandler.js';
+import { ServiceRuntime } from './ServiceRuntime.js';
 
 export class App extends BaseApp {
 
-    @dep() httpServer!: HttpServer;
+    @dep() private httpServer!: HttpServer;
+    @dep() private runtime!: ServiceRuntime;
 
     constructor() {
         super(new Mesh('App'));
@@ -21,6 +23,7 @@ export class App extends BaseApp {
         this.mesh.service(StandardHttpHandler);
         this.mesh.service(HttpCorsHandler);
         this.mesh.service(ServiceHandler);
+        this.mesh.service(ServiceRuntime);
         this.mesh.alias(HttpServer.HANDLER, AppHttpHandler);
     }
 
@@ -31,11 +34,13 @@ export class App extends BaseApp {
     }
 
     async start() {
+        await this.runtime.start();
         await this.httpServer.start();
     }
 
     async stop() {
         await this.httpServer.stop();
+        await this.runtime.stop();
     }
 
 }
