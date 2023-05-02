@@ -13,6 +13,7 @@ export class App extends BaseApp {
 
     @dep() private httpServer!: HttpServer;
     @dep() private runtime!: ServiceRuntime;
+    @dep() private reporting!: ReportingService;
 
     constructor() {
         super(new Mesh('App'));
@@ -37,11 +38,13 @@ export class App extends BaseApp {
 
     async start() {
         await this.runtime.start();
+        await this.reporting.start();
         await this.httpServer.start();
     }
 
     async stop() {
         await this.httpServer.stop();
+        await this.reporting.stop();
         await this.runtime.stop();
     }
 

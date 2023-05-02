@@ -42,6 +42,7 @@ export class ReportingService {
             this.sendSamples = async () => { };
             return;
         }
+        this.logger.info('Reporting service ready');
     }
 
     async stop() {}

@@ -38,7 +38,7 @@ export class ServiceRuntime {
                 this.logger.info('Skipping variables initialization because ENCRYPTED_VARIABLES is empty');
                 return;
             }
-            this.logger.info(`Initializing varibles`);
+            this.logger.info(`Initializing variables`);
             const key = await this.getEncryptionKey();
             const variablesJson = await this.decrypt(this.ENCRYPTED_VARIABLES, key);
             this.variables = JSON.parse(variablesJson);
