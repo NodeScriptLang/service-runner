@@ -4,6 +4,7 @@ import { RequestMethod, RequestSpec, ResponseSpecSchema } from '@nodescript/serv
 import { config } from 'mesh-config';
 import { dep } from 'mesh-ioc';
 
+import { ReportingService } from './ReportingService.js';
 import { ServiceRuntime } from './ServiceRuntime.js';
 
 export class ServiceHandler implements HttpHandler {
@@ -11,6 +12,7 @@ export class ServiceHandler implements HttpHandler {
     @config() private NODESCRIPT_MODULE_URL!: string;
 
     @dep() private runtime!: ServiceRuntime;
+    @dep() private reporting!: ReportingService;
 
     async handle(ctx: HttpContext) {
         const ec = new GraphEvalContext();
@@ -34,6 +36,7 @@ export class ServiceHandler implements HttpHandler {
             };
         } finally {
             await ec.disposeAll();
+            await this.reporting.collectSample(String(ctx.status), Date.now() - ctx.startedAt);
         }
     }
 

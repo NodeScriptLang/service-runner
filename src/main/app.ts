@@ -5,6 +5,7 @@ import { Config, ProcessEnvConfig } from 'mesh-config';
 import { dep, Mesh } from 'mesh-ioc';
 
 import { AppHttpHandler } from './AppHttpHandler.js';
+import { ReportingService } from './ReportingService.js';
 import { ServiceHandler } from './ServiceHandler.js';
 import { ServiceRuntime } from './ServiceRuntime.js';
 
@@ -24,6 +25,7 @@ export class App extends BaseApp {
         this.mesh.service(HttpCorsHandler);
         this.mesh.service(ServiceHandler);
         this.mesh.service(ServiceRuntime);
+        this.mesh.service(ReportingService);
         this.mesh.alias(HttpServer.HANDLER, AppHttpHandler);
     }
 
