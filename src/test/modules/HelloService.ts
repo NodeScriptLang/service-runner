@@ -1,4 +1,4 @@
-import { RequestSpec, ResponseSpec } from '@nodescript/service-compiler';
+import { RequestSpec, ResponseSpec } from '@nodescript/core/schema';
 
 export function compute(params: { $request: RequestSpec }) {
     const $response: ResponseSpec = {
