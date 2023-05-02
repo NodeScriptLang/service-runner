@@ -1,6 +1,6 @@
 import { GraphEvalContext } from '@nodescript/core/runtime';
+import { RequestMethod, RequestSpec, ResponseSpec, ResponseSpecSchema } from '@nodescript/core/schema';
 import { HttpContext, HttpHandler } from '@nodescript/http-server';
-import { RequestMethod, RequestSpec, ResponseSpecSchema } from '@nodescript/service-compiler';
 import { config } from 'mesh-config';
 import { dep } from 'mesh-ioc';
 
@@ -16,27 +16,39 @@ export class ServiceHandler implements HttpHandler {
 
     async handle(ctx: HttpContext) {
         const ec = new GraphEvalContext();
+        const $request = await this.createRequestObject(ctx);
+        let attributes: Record<string, string> = {};
         try {
-            const $request = await this.createRequestObject(ctx);
             const { compute } = await import(this.NODESCRIPT_MODULE_URL);
             const { $response } = await compute({
                 $request,
                 $variables: this.runtime.variables,
             }, ec);
             const response = ResponseSpecSchema.decode($response);
+            attributes = response.attributes;
             ctx.status = this.convertResponseStatus(response.status);
             ctx.responseHeaders = response.headers;
             ctx.responseBody = response.body;
-        } catch (error) {
+        } catch (error: any) {
             ctx.status = 500;
-            // TODO decide on the information we provide in the response
             ctx.responseBody = {
-                name: 'ServerError',
-                message: 'The platform issue has occurred. We\'re already on it.',
+                name: error.name,
+                message: error.message,
             };
         } finally {
             await ec.disposeAll();
-            await this.reporting.collectSample(String(ctx.status), Date.now() - ctx.startedAt);
+            const endpointId = ec.getLocal<string>('$routeId');
+            if (endpointId) {
+                const group = String(ctx.status);
+                const latency = Date.now() - ctx.startedAt;
+                const $response: ResponseSpec = {
+                    status: ctx.status,
+                    headers: ctx.responseHeaders,
+                    body: ctx.responseBody,
+                    attributes,
+                };
+                await this.reporting.collectSample(endpointId, group, latency, $request, $response);
+            }
         }
     }
 

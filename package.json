@@ -33,7 +33,7 @@
         "typescript": "^5.0.2"
     },
     "dependencies": {
-        "@nodescript/core": "^5.10.0",
+        "@nodescript/core": "^5.12.1",
         "@nodescript/errors": "^1.1.1",
         "@nodescript/http-server": "^1.2.1",
         "@nodescript/logger": "^1.4.2",

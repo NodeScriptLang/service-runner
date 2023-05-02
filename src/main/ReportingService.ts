@@ -68,13 +68,13 @@ export class ReportingService {
         // during that time stats are only collected, but are send with the next invocation
         if (Date.now() - this.lastSentAt > this.REPORT_DEBOUNCE_MS) {
             this.lastSentAt = Date.now();
-            await this.sendSamples();
+            const samples = [...this.outstandingSamples.values()];
             this.outstandingSamples.clear();
+            await this.sendSamples(samples);
         }
     }
 
-    private async sendSamples() {
-        const samples = [...this.outstandingSamples.values()];
+    private async sendSamples(samples: EndpointSample[]) {
         const url = new URL('Invoke/reportSamples', this.NODESCRIPT_API_URL);
         const res = await fetch(url.href, {
             method: 'POST',
