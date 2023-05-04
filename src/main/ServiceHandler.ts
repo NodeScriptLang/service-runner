@@ -16,6 +16,7 @@ export class ServiceHandler implements HttpHandler {
 
     async handle(ctx: HttpContext) {
         const ec = new GraphEvalContext();
+        ec.setLocal('ns:env', 'server');
         const $request = await this.createRequestObject(ctx);
         let attributes: Record<string, string> = {};
         try {
@@ -36,7 +37,7 @@ export class ServiceHandler implements HttpHandler {
                 message: error.message,
             };
         } finally {
-            await ec.disposeAll();
+            await ec.finalize();
             const endpointId = ec.getLocal<string>('$routeId');
             if (endpointId) {
                 const group = String(ctx.status);
