@@ -33,12 +33,12 @@
         "typescript": "^5.0.2"
     },
     "dependencies": {
-        "@nodescript/core": "^5.20.1",
+        "@nodescript/core": "^6.0.0",
         "@nodescript/errors": "^1.1.1",
         "@nodescript/http-server": "^1.2.1",
         "@nodescript/logger": "^1.4.2",
         "@nodescript/microservice": "^1.1.2",
-        "@nodescript/service-compiler": "^1.5.3",
+        "@nodescript/service-compiler": "^1.7.0",
         "dotenv": "^16.0.3",
         "isomorphic-ws": "^5.0.0",
         "mesh-config": "^1.0.0",
