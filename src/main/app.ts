@@ -1,6 +1,6 @@
 import { HttpCorsHandler, HttpServer, StandardHttpHandler } from '@nodescript/http-server';
 import { Logger } from '@nodescript/logger';
-import { BaseApp, StandardLogger } from '@nodescript/microservice';
+import { BaseApp, StandardLogger } from '@nodescript/microframework';
 import { Config, ProcessEnvConfig } from 'mesh-config';
 import { dep, Mesh } from 'mesh-ioc';
 
